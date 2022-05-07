@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  php:
+    container_name: php_prod
+    image: mts/php
+    build:
+      context: .
+      dockerfile: ./php/Dockerfile_prod
+    ports:
+      - '9000:9000'    
+    depends_on:
+      - database
+
+  nginx:
+    container_name: nginx_prod
+    image: mts/nginx
+    build:
+      context: .
+      dockerfile: ./nginx/Dockerfile
+    ports:
+      - '8080:80'
+    volumes:
+      - ./app:/var/www/symfony_docker
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
+      - database

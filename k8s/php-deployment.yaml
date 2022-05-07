@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: php
+  labels:
+    tier: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: php
+      tier: backend
+  template:
+    metadata:
+      labels:
+        app: php
+        tier: backend
+    spec:      
+      volumes:
+      - name: code
+        persistentVolumeClaim:
+          claimName: code
+      initContainers:
+        - name: init-php
+          image: localhost:5000/mts_php                     
+          volumeMounts:
+          - name: code
+            mountPath: /code
+          command:
+          - bash
+          - "-c"
+          - "cp -r /var/www/mts/* /code && touch /code/.env && chmod -R 777 /code/var/"            
+      containers:
+      - name: php
+        env:
+          - name: APP_ENV
+            value: dev
+        image: localhost:5000/mts_php
+        volumeMounts:
+        - name: code
+          mountPath: /var/www/mts      
